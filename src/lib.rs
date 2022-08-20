@@ -19,7 +19,7 @@
 //!
 //! # Usage
 //!
-//! ```
+//! ```no_run
 //! use std::fs;
 //! use filetime_creation::{FileTime, set_file_ctime};
 //! 
