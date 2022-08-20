@@ -1,10 +1,10 @@
 //! Timestamps for files in Rust
 //!
 //! Like [filetime](https://docs.rs/filetime), but can set file creation time.
-//! 
+//!
 //! Internally, this crate use [SetFileTime](https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-setfiletime)
 //! Win32 API to set the file creation time on Windows.
-//! 
+//!
 //! On other platforms, all functions will just call the corresponding [filetime](https://docs.rs/filetime)'s funtion, and
 //! ignore the file creation time.
 //!
@@ -22,14 +22,14 @@
 //! ```no_run
 //! use std::fs;
 //! use filetime_creation::{FileTime, set_file_ctime};
-//! 
+//!
 //! let now = FileTime::now();
-//! 
+//!
 //! set_file_ctime("test.txt", now);
 //! assert_eq!(now, FileTime::from(fs::metadata("test.txt").unwrap().created().unwrap()));
 //! ```
 
-pub use filetime::{FileTime, set_file_atime, set_file_mtime};
+pub use filetime::{set_file_atime, set_file_mtime, FileTime};
 
 use std::fs::{self, OpenOptions};
 use std::io;
@@ -52,7 +52,8 @@ pub fn set_file_times<P>(p: P, atime: FileTime, mtime: FileTime, ctime: FileTime
 where
     P: AsRef<Path>,
 {
-    #[cfg(windows)] {
+    #[cfg(windows)]
+    {
         let f = OpenOptions::new()
             .write(true)
             .custom_flags(FILE_FLAG_BACKUP_SEMANTICS)
@@ -60,7 +61,8 @@ where
         set_file_handle_times(&f, Some(atime), Some(mtime), Some(ctime))
     }
 
-    #[cfg(not(windows))] {
+    #[cfg(not(windows))]
+    {
         filetime::set_file_times(p, atime, mtime)
     }
 }
@@ -79,7 +81,8 @@ pub fn set_file_ctime<P>(p: P, ctime: FileTime) -> io::Result<()>
 where
     P: AsRef<Path>,
 {
-    #[cfg(windows)] {
+    #[cfg(windows)]
+    {
         let f = OpenOptions::new()
             .write(true)
             .custom_flags(FILE_FLAG_BACKUP_SEMANTICS)
@@ -87,8 +90,12 @@ where
         set_file_handle_times(&f, None, None, Some(ctime))
     }
 
-    #[cfg(not(windows))] {
-        Err(io::Error::new(io::ErrorKind::Unsupported, "Platform unsupported"))
+    #[cfg(not(windows))]
+    {
+        Err(io::Error::new(
+            io::ErrorKind::Unsupported,
+            "Platform unsupported",
+        ))
     }
 }
 
@@ -104,7 +111,8 @@ pub fn set_file_handle_times(
     mtime: Option<FileTime>,
     ctime: Option<FileTime>,
 ) -> io::Result<()> {
-    #[cfg(windows)] {
+    #[cfg(windows)]
+    {
         let atime = atime.map(to_filetime);
         let mtime = mtime.map(to_filetime);
         let ctime = ctime.map(to_filetime);
@@ -130,9 +138,10 @@ pub fn set_file_handle_times(
                 Err(io::Error::last_os_error())
             }
         };
-    
+
         fn to_filetime(ft: FileTime) -> FILETIME {
-            let intervals = ft.seconds() * (1_000_000_000 / 100) + ((ft.nanoseconds() as i64) / 100);
+            let intervals =
+                ft.seconds() * (1_000_000_000 / 100) + ((ft.nanoseconds() as i64) / 100);
             FILETIME {
                 dwLowDateTime: intervals as u32,
                 dwHighDateTime: (intervals >> 32) as u32,
@@ -140,7 +149,8 @@ pub fn set_file_handle_times(
         }
     }
 
-    #[cfg(not(windows))] {
+    #[cfg(not(windows))]
+    {
         filetime::set_file_handle_times(f, atime, mtime)
     }
 }
@@ -150,11 +160,17 @@ pub fn set_file_handle_times(
 ///
 /// This function will set the `atime` and `mtime` metadata fields for a file
 /// on the local filesystem, returning any error encountered.
-pub fn set_symlink_file_times<P>(p: P, atime: FileTime, mtime: FileTime, ctime: FileTime) -> io::Result<()>
+pub fn set_symlink_file_times<P>(
+    p: P,
+    atime: FileTime,
+    mtime: FileTime,
+    ctime: FileTime,
+) -> io::Result<()>
 where
     P: AsRef<Path>,
 {
-    #[cfg(windows)] {
+    #[cfg(windows)]
+    {
         let f = OpenOptions::new()
             .write(true)
             .custom_flags(FILE_FLAG_OPEN_REPARSE_POINT | FILE_FLAG_BACKUP_SEMANTICS)
@@ -162,12 +178,11 @@ where
         set_file_handle_times(&f, Some(atime), Some(mtime), Some(ctime))
     }
 
-    #[cfg(not(windows))] {
+    #[cfg(not(windows))]
+    {
         filetime::set_symlink_file_times(p, atime, mtime)
     }
 }
 
 #[cfg(test)]
-mod tests {
-
-}
+mod tests {}
