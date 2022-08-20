@@ -141,7 +141,7 @@ pub fn set_file_handle_times(
     }
 
     #[cfg(not(windows))] {
-        filetime::set_file_times(p, atime, mtime)
+        filetime::set_file_times(f, atime, mtime)
     }
 }
 
