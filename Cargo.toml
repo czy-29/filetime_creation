@@ -1,0 +1,29 @@
+[package]
+name = "filetime_creation"
+authors = ["29 <791603901@qq.com>"]
+version = "0.1.0"
+license = "MIT/Apache-2.0"
+readme = "README.md"
+keywords = ["timestamp", "filetime", "SetFileTime", "windows", "btime"]
+categories = ["date-and-time", "filesystem", "os::windows-apis"]
+repository = "https://github.com/czy-29/filetime_creation"
+homepage = "https://github.com/czy-29/filetime_creation"
+documentation = "https://docs.rs/filetime_creation"
+description = """
+Like filetime, but can set file creation time.
+"""
+edition = "2021"
+
+[dependencies]
+cfg-if = "1.0.0"
+filetime = "0.2.17"
+
+[target.'cfg(windows)'.dependencies.windows-sys]
+version = "0.36.0"
+features = [
+    "Win32_Foundation",
+    "Win32_Storage_FileSystem"
+]
+
+[dev-dependencies]
+tempfile = "3"
