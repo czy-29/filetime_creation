@@ -2,7 +2,7 @@
 
 [Documentation](https://docs.rs/filetime_creation)
 
-Like [filetime](https://crates.io/crates/filetime), but can set file creation time on (and only on) Windows.
+An enhanced version of [filetime](https://crates.io/crates/filetime), which can set file creation time on Windows.
 
 Internally, this use [SetFileTime](https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-setfiletime)
 Win32 API to set the file creation time on Windows.

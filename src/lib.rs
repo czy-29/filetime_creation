@@ -1,6 +1,6 @@
 //! Timestamps for files in Rust
 //!
-//! Like [filetime](https://docs.rs/filetime), but can set file creation time.
+//! An enhanced version of [filetime](https://docs.rs/filetime), which can set file creation time on Windows.
 //!
 //! Internally, this crate use [SetFileTime](https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-setfiletime)
 //! Win32 API to set the file creation time on Windows.

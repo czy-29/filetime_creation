@@ -10,7 +10,7 @@ repository = "https://github.com/czy-29/filetime_creation"
 homepage = "https://github.com/czy-29/filetime_creation"
 documentation = "https://docs.rs/filetime_creation"
 description = """
-Like filetime, but can set file creation time.
+An enhanced version of filetime, which can set file creation time on Windows.
 """
 edition = "2021"
 
