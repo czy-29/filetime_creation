@@ -122,8 +122,7 @@ pub fn set_file_handle_times(
     };
 
     fn to_filetime(ft: FileTime) -> FILETIME {
-        let intervals =
-            ft.seconds() * (1_000_000_000 / 100) + ((ft.nanoseconds() as i64) / 100);
+        let intervals = ft.seconds() * (1_000_000_000 / 100) + ((ft.nanoseconds() as i64) / 100);
         FILETIME {
             dwLowDateTime: intervals as u32,
             dwHighDateTime: (intervals >> 32) as u32,
