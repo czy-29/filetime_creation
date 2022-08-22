@@ -31,13 +31,14 @@
 
 pub use filetime::{set_file_atime, set_file_mtime, FileTime};
 
-use std::fs::{self, OpenOptions};
+use std::fs;
 use std::io;
 use std::path::Path;
-use std::ptr;
 
 cfg_if::cfg_if! {
     if #[cfg(windows)] {
+        use fs::OpenOptions;
+        use std::ptr;
         use std::os::windows::prelude::*;
         use windows_sys::Win32::Foundation::{FILETIME, HANDLE};
         use windows_sys::Win32::Storage::FileSystem::*;
@@ -175,7 +176,7 @@ where
 /// the `atime`, but where not supported this may issue one syscall to learn the
 /// existing `mtime` so only the `atime` can be configured.
 #[cfg(not(windows))]
-pub fn set_file_ctime<P>(p: P, _ctime: FileTime) -> io::Result<()>
+pub fn set_file_ctime<P>(_p: P, _ctime: FileTime) -> io::Result<()>
 where
     P: AsRef<Path>,
 {
