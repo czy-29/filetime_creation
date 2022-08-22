@@ -8,7 +8,7 @@ Internally, this use [SetFileTime](https://docs.microsoft.com/en-us/windows/win3
 Win32 API to set the file creation time on Windows.
 
 On other platforms, all functions will just call the corresponding [filetime](https://crates.io/crates/filetime)'s
-funtion, and ignore the file creation time.
+function, and ignore the file creation time.
 
 ```toml
 # Cargo.toml

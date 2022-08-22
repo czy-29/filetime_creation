@@ -5,7 +5,7 @@
 //! Internally, this crate use [SetFileTime](https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-setfiletime)
 //! Win32 API to set the file creation time on Windows.
 //!
-//! On other platforms, all functions will just call the corresponding [filetime](https://docs.rs/filetime)'s funtion, and
+//! On other platforms, all functions will just call the corresponding [filetime](https://docs.rs/filetime)'s function, and
 //! ignore the file creation time.
 //!
 //! # Installation
