@@ -540,9 +540,8 @@ mod tests {
 
     #[test]
     #[cfg(windows)]
-    #[cfg(not)]
     fn set_single_time_test() {
-        use super::{set_file_atime, set_file_mtime};
+        use super::{set_file_atime, set_file_mtime, set_file_ctime};
 
         let td = Builder::new().prefix("filetime").tempdir().unwrap();
         let path = td.path().join("foo.txt");
@@ -551,7 +550,8 @@ mod tests {
         let metadata = fs::metadata(&path).unwrap();
         let mtime = FileTime::from_last_modification_time(&metadata);
         let atime = FileTime::from_last_access_time(&metadata);
-        set_file_times(&path, atime, mtime).unwrap();
+        let ctime = FileTime::from_creation_time(&metadata).unwrap();
+        set_file_times(&path, atime, mtime, ctime).unwrap();
 
         let new_mtime = FileTime::from_unix_time(10_000, 0);
         set_file_mtime(&path, new_mtime).unwrap();
@@ -564,6 +564,11 @@ mod tests {
             FileTime::from_last_access_time(&metadata),
             "access time should not be updated",
         );
+        assert_eq!(
+            ctime,
+            FileTime::from_creation_time(&metadata).unwrap(),
+            "creation time should not be updated",
+        );
 
         let new_atime = FileTime::from_unix_time(20_000, 0);
         set_file_atime(&path, new_atime).unwrap();
@@ -575,6 +580,28 @@ mod tests {
             mtime,
             FileTime::from_last_modification_time(&metadata),
             "modification time should not be updated"
+        );
+        assert_eq!(
+            ctime,
+            FileTime::from_creation_time(&metadata).unwrap(),
+            "creation time should not be updated",
+        );
+
+        let new_ctime = FileTime::from_unix_time(30_000, 0);
+        set_file_ctime(&path, new_ctime).unwrap();
+
+        let metadata = fs::metadata(&path).unwrap();
+        let ctime = FileTime::from_creation_time(&metadata).unwrap();
+        assert_eq!(ctime, new_ctime, "creation time should be updated");
+        assert_eq!(
+            mtime,
+            FileTime::from_last_modification_time(&metadata),
+            "modification time should not be updated"
+        );
+        assert_eq!(
+            atime,
+            FileTime::from_last_access_time(&metadata),
+            "access time should not be updated",
         );
     }
 }
