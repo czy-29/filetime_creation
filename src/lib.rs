@@ -450,7 +450,6 @@ mod tests {
 
     #[test]
     #[cfg(windows)]
-    #[cfg(not)]
     fn set_symlink_file_times_test() {
         let td = Builder::new().prefix("filetime").tempdir().unwrap();
         let path = td.path().join("foo.txt");
@@ -459,14 +458,15 @@ mod tests {
         let metadata = fs::metadata(&path).unwrap();
         let mtime = FileTime::from_last_modification_time(&metadata);
         let atime = FileTime::from_last_access_time(&metadata);
-        set_symlink_file_times(&path, atime, mtime).unwrap();
+        let ctime = FileTime::from_creation_time(&metadata).unwrap();
+        set_symlink_file_times(&path, atime, mtime, ctime).unwrap();
 
-        let new_mtime = FileTime::from_unix_time(10_000, 0);
-        set_symlink_file_times(&path, atime, new_mtime).unwrap();
+        let new_ctime = FileTime::from_unix_time(10_000, 0);
+        set_symlink_file_times(&path, atime, mtime, new_ctime).unwrap();
 
         let metadata = fs::metadata(&path).unwrap();
-        let mtime = FileTime::from_last_modification_time(&metadata);
-        assert_eq!(mtime, new_mtime);
+        let ctime = FileTime::from_creation_time(&metadata).unwrap();
+        assert_eq!(ctime, new_ctime);
 
         let spath = td.path().join("bar.txt");
         make_symlink_file(&path, &spath).unwrap();
@@ -474,22 +474,23 @@ mod tests {
         let metadata = fs::symlink_metadata(&spath).unwrap();
         let smtime = FileTime::from_last_modification_time(&metadata);
         let satime = FileTime::from_last_access_time(&metadata);
-        set_symlink_file_times(&spath, smtime, satime).unwrap();
+        let sctime = FileTime::from_creation_time(&metadata).unwrap();
+        set_symlink_file_times(&spath, smtime, satime, sctime).unwrap();
 
         let metadata = fs::metadata(&path).unwrap();
-        let mtime = FileTime::from_last_modification_time(&metadata);
-        assert_eq!(mtime, new_mtime);
+        let ctime = FileTime::from_creation_time(&metadata).unwrap();
+        assert_eq!(ctime, new_ctime);
 
-        let new_smtime = FileTime::from_unix_time(20_000, 0);
-        set_symlink_file_times(&spath, atime, new_smtime).unwrap();
+        let new_sctime = FileTime::from_unix_time(20_000, 0);
+        set_symlink_file_times(&spath, atime, mtime, new_sctime).unwrap();
 
         let metadata = fs::metadata(&spath).unwrap();
-        let mtime = FileTime::from_last_modification_time(&metadata);
-        assert_eq!(mtime, new_mtime);
+        let ctime = FileTime::from_creation_time(&metadata).unwrap();
+        assert_eq!(ctime, new_ctime);
 
         let metadata = fs::symlink_metadata(&spath).unwrap();
-        let mtime = FileTime::from_last_modification_time(&metadata);
-        assert_eq!(mtime, new_smtime);
+        let ctime = FileTime::from_creation_time(&metadata).unwrap();
+        assert_eq!(ctime, new_sctime);
     }
 
     #[test]
