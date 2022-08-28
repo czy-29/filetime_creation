@@ -241,7 +241,6 @@ mod tests {
     }
 
     #[cfg(windows)]
-    #[cfg(not)]
     fn make_symlink_dir<P, Q>(src: P, dst: Q) -> io::Result<()>
     where
         P: AsRef<Path>,
@@ -333,7 +332,6 @@ mod tests {
 
     #[test]
     #[cfg(windows)]
-    #[cfg(not)]
     fn set_dir_times_test() -> io::Result<()> {
         let td = Builder::new().prefix("filetime").tempdir()?;
         let path = td.path().join("foo");
@@ -342,14 +340,15 @@ mod tests {
         let metadata = fs::metadata(&path)?;
         let mtime = FileTime::from_last_modification_time(&metadata);
         let atime = FileTime::from_last_access_time(&metadata);
-        set_file_times(&path, atime, mtime)?;
+        let ctime = FileTime::from_creation_time(&metadata).unwrap();
+        set_file_times(&path, atime, mtime, ctime)?;
 
-        let new_mtime = FileTime::from_unix_time(10_000, 0);
-        set_file_times(&path, atime, new_mtime)?;
+        let new_ctime = FileTime::from_unix_time(10_000, 0);
+        set_file_times(&path, atime, mtime, new_ctime)?;
 
         let metadata = fs::metadata(&path)?;
-        let mtime = FileTime::from_last_modification_time(&metadata);
-        assert_eq!(mtime, new_mtime, "modification should be updated");
+        let ctime = FileTime::from_creation_time(&metadata).unwrap();
+        assert_eq!(ctime, new_ctime, "creation should be updated");
 
         // Update just mtime
         let new_mtime = FileTime::from_unix_time(20_000, 0);
@@ -359,6 +358,8 @@ mod tests {
         assert_eq!(mtime, new_mtime, "modification time should be updated");
         let new_atime = FileTime::from_last_access_time(&metadata);
         assert_eq!(atime, new_atime, "accessed time should not be updated");
+        let new_ctime = FileTime::from_creation_time(&metadata).unwrap();
+        assert_eq!(ctime, new_ctime, "creation time should not be updated");
 
         // Update just atime
         let new_atime = FileTime::from_unix_time(30_000, 0);
@@ -368,31 +369,44 @@ mod tests {
         assert_eq!(mtime, new_mtime, "modification time should not be updated");
         let atime = FileTime::from_last_access_time(&metadata);
         assert_eq!(atime, new_atime, "accessed time should be updated");
+        let ctime = FileTime::from_creation_time(&metadata).unwrap();
+        assert_eq!(ctime, new_ctime, "creation time should not be updated");
+
+        // Update just ctime
+        let new_ctime = FileTime::from_unix_time(40_000, 0);
+        set_file_ctime(&path, new_ctime)?;
+        let metadata = fs::metadata(&path)?;
+        let new_mtime = FileTime::from_last_modification_time(&metadata);
+        assert_eq!(mtime, new_mtime, "modification time should not be updated");
+        let new_atime = FileTime::from_last_access_time(&metadata);
+        assert_eq!(atime, new_atime, "accessed time should not be updated");
+        let ctime = FileTime::from_creation_time(&metadata).unwrap();
+        assert_eq!(ctime, new_ctime, "creation time should be updated");
 
         let spath = td.path().join("bar");
         make_symlink_dir(&path, &spath)?;
         let metadata = fs::symlink_metadata(&spath)?;
-        let smtime = FileTime::from_last_modification_time(&metadata);
+        let sctime = FileTime::from_creation_time(&metadata).unwrap();
 
-        set_file_times(&spath, atime, mtime)?;
-
-        let metadata = fs::metadata(&path)?;
-        let cur_mtime = FileTime::from_last_modification_time(&metadata);
-        assert_eq!(mtime, cur_mtime);
-
-        let metadata = fs::symlink_metadata(&spath)?;
-        let cur_mtime = FileTime::from_last_modification_time(&metadata);
-        assert_eq!(smtime, cur_mtime);
-
-        set_file_times(&spath, atime, new_mtime)?;
+        set_file_times(&spath, atime, mtime, ctime)?;
 
         let metadata = fs::metadata(&path)?;
-        let mtime = FileTime::from_last_modification_time(&metadata);
-        assert_eq!(mtime, new_mtime);
+        let cur_ctime = FileTime::from_creation_time(&metadata).unwrap();
+        assert_eq!(ctime, cur_ctime);
 
         let metadata = fs::symlink_metadata(&spath)?;
-        let mtime = FileTime::from_last_modification_time(&metadata);
-        assert_eq!(mtime, smtime);
+        let cur_ctime = FileTime::from_creation_time(&metadata).unwrap();
+        assert_eq!(sctime, cur_ctime);
+
+        set_file_times(&spath, atime, mtime, new_ctime)?;
+
+        let metadata = fs::metadata(&path)?;
+        let ctime = FileTime::from_creation_time(&metadata).unwrap();
+        assert_eq!(ctime, new_ctime);
+
+        let metadata = fs::symlink_metadata(&spath)?;
+        let ctime = FileTime::from_creation_time(&metadata).unwrap();
+        assert_eq!(ctime, sctime);
         Ok(())
     }
 
