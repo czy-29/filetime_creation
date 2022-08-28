@@ -541,7 +541,7 @@ mod tests {
     #[test]
     #[cfg(windows)]
     fn set_single_time_test() {
-        use super::{set_file_atime, set_file_mtime, set_file_ctime};
+        use super::{set_file_atime, set_file_ctime, set_file_mtime};
 
         let td = Builder::new().prefix("filetime").tempdir().unwrap();
         let path = td.path().join("foo.txt");
