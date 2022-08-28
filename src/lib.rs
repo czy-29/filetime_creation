@@ -45,10 +45,7 @@ cfg_if::cfg_if! {
     }
 }
 
-/// Set the last access and modification times for a file on the filesystem.
-///
-/// This function will set the `atime` and `mtime` metadata fields for a file
-/// on the local filesystem, returning any error encountered.
+/// Set the last access, modification, and creation times for a file on the filesystem.
 #[cfg(windows)]
 pub fn set_file_times<P>(p: P, atime: FileTime, mtime: FileTime, ctime: FileTime) -> io::Result<()>
 where
@@ -61,16 +58,12 @@ where
     set_file_handle_times(&f, Some(atime), Some(mtime), Some(ctime))
 }
 
-/// Set the last access time for a file on the filesystem.
-///
-/// This function will set the `atime` metadata field for a file on the local
-/// filesystem, returning any error encountered.
+/// Set the creation time for a file on Windows, returning any error encountered.
 ///
 /// # Platform support
 ///
-/// Where supported this will attempt to issue just one syscall to update only
-/// the `atime`, but where not supported this may issue one syscall to learn the
-/// existing `mtime` so only the `atime` can be configured.
+/// This function is only supported on Windows, other platforms will do nothing
+/// and return Err.
 #[cfg(windows)]
 pub fn set_file_ctime<P>(p: P, ctime: FileTime) -> io::Result<()>
 where
@@ -83,12 +76,7 @@ where
     set_file_handle_times(&f, None, None, Some(ctime))
 }
 
-/// Set the last access and modification times for a file handle.
-///
-/// This function will either or both of  the `atime` and `mtime` metadata
-/// fields for a file handle , returning any error encountered. If `None` is
-/// specified then the time won't be updated. If `None` is specified for both
-/// options then no action is taken.
+/// Set the last access, modification and creation times for a file handle.
 #[cfg(windows)]
 pub fn set_file_handle_times(
     f: &fs::File,
@@ -131,11 +119,8 @@ pub fn set_file_handle_times(
     }
 }
 
-/// Set the last access and modification times for a file on the filesystem.
+/// Set the last access, modification and creation times for a file on the filesystem.
 /// This function does not follow symlink.
-///
-/// This function will set the `atime` and `mtime` metadata fields for a file
-/// on the local filesystem, returning any error encountered.
 #[cfg(windows)]
 pub fn set_symlink_file_times<P>(
     p: P,
@@ -153,10 +138,7 @@ where
     set_file_handle_times(&f, Some(atime), Some(mtime), Some(ctime))
 }
 
-/// Set the last access and modification times for a file on the filesystem.
-///
-/// This function will set the `atime` and `mtime` metadata fields for a file
-/// on the local filesystem, returning any error encountered.
+/// Set the last access, modification, and creation times for a file on the filesystem.
 #[cfg(not(windows))]
 pub fn set_file_times<P>(p: P, atime: FileTime, mtime: FileTime, _ctime: FileTime) -> io::Result<()>
 where
@@ -165,16 +147,12 @@ where
     filetime::set_file_times(p, atime, mtime)
 }
 
-/// Set the last access time for a file on the filesystem.
-///
-/// This function will set the `atime` metadata field for a file on the local
-/// filesystem, returning any error encountered.
+/// Set the creation time for a file on Windows, returning any error encountered.
 ///
 /// # Platform support
 ///
-/// Where supported this will attempt to issue just one syscall to update only
-/// the `atime`, but where not supported this may issue one syscall to learn the
-/// existing `mtime` so only the `atime` can be configured.
+/// This function is only supported on Windows, other platforms will do nothing
+/// and return Err.
 #[cfg(not(windows))]
 pub fn set_file_ctime<P>(_p: P, _ctime: FileTime) -> io::Result<()>
 where
@@ -186,12 +164,7 @@ where
     ))
 }
 
-/// Set the last access and modification times for a file handle.
-///
-/// This function will either or both of  the `atime` and `mtime` metadata
-/// fields for a file handle , returning any error encountered. If `None` is
-/// specified then the time won't be updated. If `None` is specified for both
-/// options then no action is taken.
+/// Set the last access, modification and creation times for a file handle.
 #[cfg(not(windows))]
 pub fn set_file_handle_times(
     f: &fs::File,
@@ -202,11 +175,8 @@ pub fn set_file_handle_times(
     filetime::set_file_handle_times(f, atime, mtime)
 }
 
-/// Set the last access and modification times for a file on the filesystem.
+/// Set the last access, modification and creation times for a file on the filesystem.
 /// This function does not follow symlink.
-///
-/// This function will set the `atime` and `mtime` metadata fields for a file
-/// on the local filesystem, returning any error encountered.
 #[cfg(not(windows))]
 pub fn set_symlink_file_times<P>(
     p: P,
