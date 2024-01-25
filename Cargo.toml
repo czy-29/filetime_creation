@@ -19,7 +19,7 @@ cfg-if = "1.0.0"
 filetime = "0.2.22"
 
 [target.'cfg(windows)'.dependencies.windows-sys]
-version = "0.48.0"
+version = "0.52.0"
 features = [
     "Win32_Foundation",
     "Win32_Storage_FileSystem"
