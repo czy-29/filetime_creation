@@ -10,7 +10,7 @@ repository = "https://github.com/czy-29/filetime_creation"
 homepage = "https://github.com/czy-29/filetime_creation"
 documentation = "https://docs.rs/filetime_creation"
 description = """
-An enhanced version of filetime, which can set file creation time on Windows.
+An enhanced version of filetime, which can set file creation time on Windows before Rust 1.75.
 """
 edition = "2021"
 
